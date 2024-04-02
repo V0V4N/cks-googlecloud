@@ -25,10 +25,6 @@ variable "backend_dynamodb_table" {
 default="${local.backend_dynamodb_table}"
 }
 
-variable "region_cmdb" {
-default="${local.backend_region}"
-}
-
 EOF
 }
 

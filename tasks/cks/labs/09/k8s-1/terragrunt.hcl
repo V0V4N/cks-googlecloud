@@ -31,7 +31,6 @@ inputs = {
   prefix       = "cluster6"
   tags_common  = local.vars.locals.tags
   app_name     = "k8s"
-  subnets_az   = dependency.vpc.outputs.subnets_az_cmdb
   vpc_id       = dependency.vpc.outputs.vpc_id
   cluster_name = "k8s6"
   node_type    = local.vars.locals.node_type
