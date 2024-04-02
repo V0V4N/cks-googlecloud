@@ -38,7 +38,7 @@ inputs = {
     k8_version         = "1.25.0"
     runtime            = local.vars.locals.runtime # docker  , cri-o  , containerd ( need test it ) , containerd_gvizor
     runtime_script     = "template/runtime.sh"
-    instance_type      = local.vars.locals.instance_type
+    machine_type      = local.vars.locals.machine_type
     key_name           = local.vars.locals.key_name
     ami_id             = local.vars.locals.ami_id
     subnet_number      = "0"
@@ -61,7 +61,7 @@ inputs = {
 
     "node_2" = {
       k8_version         = "1.25.0"
-      instance_type      = local.vars.locals.instance_type
+      machine_type      = local.vars.locals.machine_type
       key_name           = local.vars.locals.key_name
       ami_id             = local.vars.locals.ami_id
       subnet_number      = "0"

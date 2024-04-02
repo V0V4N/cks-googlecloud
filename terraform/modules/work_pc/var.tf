@@ -42,7 +42,7 @@ variable "solutions_video" {
 variable "work_pc" {
   type = object({
     clusters_config    = map(string)
-    instance_type      = string
+    machine_type      = string
     ami_id             = string
     key_name           = string
     cidrs              = list(string)

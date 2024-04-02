@@ -50,8 +50,8 @@ output "aws_eks_cluster_eks_cluster_arn" {
   value = var.debug_output == "true" ? var.aws_eks_cluster_eks_cluster_arn : null
 }
 
-output "instance_type" {
-  value = var.debug_output == "true" ? var.work_pc.instance_type : null
+output "machine_type" {
+  value = var.debug_output == "true" ? var.work_pc.machine_type : null
 }
 
 output "kubectl_version" {

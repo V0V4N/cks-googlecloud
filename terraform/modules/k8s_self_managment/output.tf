@@ -46,8 +46,8 @@ output "ami_id_master" {
   value = local.master_ami
 }
 
-output "master_instance_type" {
-  value = local.master_instance_type
+output "master_machine_type" {
+  value = local.master_machine_type
 }
 
 output "worker_reload_bashrc" {

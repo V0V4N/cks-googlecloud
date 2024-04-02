@@ -21,8 +21,8 @@ locals {
   k8_version           = "1.29.0"
   node_type            = "spot"
   runtime              = "containerd" # docker  , cri-o  , containerd ( need test it )
-  instance_type        = "t4g.medium"
-  instance_type_worker = "t4g.small"
+  machine_type        = "t4g.medium"
+  machine_type_worker = "t4g.small"
   ubuntu_version       = "20.04"
   ami_id               = ""
   key_name             = ""

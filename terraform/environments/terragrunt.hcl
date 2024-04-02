@@ -2,7 +2,6 @@ locals {
   region                 = "asia-east2-a"
   backend_region         = "ASIA-EAST2"
   backend_bucket         = "v0v4n-cks-state-backet"
-  backend_dynamodb_table = "${local.backend_bucket}-lock"
 }
 
 generate "backend" {
@@ -21,9 +20,6 @@ terraform {
 variable "s3_k8s_config" {
 default="${local.backend_bucket}"
 }
-variable "backend_dynamodb_table" {
-default="${local.backend_dynamodb_table}"
-}
 
 EOF
 }
@@ -39,5 +35,4 @@ remote_state {
 inputs = {
  region = local.backend_region
  backend_bucket=local.backend_bucket
- backend_dynamodb_table=local.backend_dynamodb_table
 }

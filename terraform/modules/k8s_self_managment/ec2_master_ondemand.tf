@@ -1,22 +1,37 @@
-resource "aws_instance" "master" {
+resource "google_compute_instance" "master" {
   for_each                    = toset(var.node_type == "ondemand" ? ["enable"] : [])
-  iam_instance_profile        = aws_iam_instance_profile.server.id
-  associate_public_ip_address = "true"
-  ami                         = local.master_ami
-  instance_type               = var.k8s_master.instance_type
-  subnet_id                   = local.subnets[var.k8s_master.subnet_number]
-  key_name                    = var.k8s_master.key_name != "" ? var.k8s_master.key_name : null
-  security_groups             = [aws_security_group.servers.id]
-  lifecycle {
-    ignore_changes = [
-      instance_type,
-      user_data,
-      root_block_device,
-      key_name,
-      security_groups
-    ]
+
+  name         = "${local.prefix}-${var.app_name}"
+  machine_type = var.k8s_master.machine_type
+  zone         = var.region
+
+  tags = local.tags_all
+
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.default.email
+    scopes = ["cloud-platform"]
   }
-  user_data = base64encode(templatefile("template/boot_zip.sh", {
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    subnetwork = ""
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+  
+  metadata = {
+    ssh-keys = "ubuntu:${file("./gcp_instance_ssh_key.pub")}"
+    startup-script = <<-EOF
+    ${templatefile("template/boot_zip.sh", {
     boot_zip = base64gzip(templatefile(var.k8s_master.user_data_template, {
       worker_join         = local.worker_join
       k8s_config          = local.k8s_config
@@ -33,18 +48,15 @@ resource "aws_instance" "master" {
       ssh_password        = random_string.ssh.result
       ssh_password_enable = var.ssh_password_enable
     }))
-
-  }))
-
-
-  tags = local.tags_all
-  root_block_device {
-    volume_size           = var.k8s_master.root_volume.size
-    volume_type           = var.k8s_master.root_volume.type
-    delete_on_termination = true
-    tags                  = local.tags_all
-    encrypted             = true
+    })}
+    EOF
   }
-
+  lifecycle {
+    ignore_changes = [
+      machine_type,
+      boot_disk,
+      metadata
+    ]
+  }
 
 }

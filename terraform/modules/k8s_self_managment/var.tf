@@ -26,7 +26,7 @@ variable "ssh_password_enable" {
 variable "node_type" { type = string }
 variable "k8s_master" {
   type = object({
-    instance_type      = string
+    machine_type      = string
     ami_id             = string
     ubuntu_version     = string
     key_name           = string
@@ -54,7 +54,7 @@ variable "k8s_master" {
 
 variable "k8s_worker" {
   type = map(object({
-    instance_type      = string
+    machine_type      = string
     ami_id             = string
     ubuntu_version     = string
     key_name           = string

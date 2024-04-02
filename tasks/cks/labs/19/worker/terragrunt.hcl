@@ -32,7 +32,7 @@ inputs = {
 
   work_pc = {
     clusters_config    = {}
-    instance_type      = local.vars.locals.instance_type_worker
+    machine_type      = local.vars.locals.machine_type_worker
     node_type          = local.vars.locals.node_type
     ami_id             = local.vars.locals.ami_id
     ubuntu_version     = local.vars.locals.ubuntu_version

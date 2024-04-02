@@ -86,7 +86,7 @@ resource "aws_launch_template" "master" {
   for_each      = toset(var.work_pc.node_type == "spot" ? ["enable"] : [])
   name_prefix   = "${local.prefix}-${var.app_name}"
   image_id      = var.work_pc.ami_id != "" ? var.work_pc.ami_id : data.aws_ami.master.image_id
-  instance_type = var.work_pc.instance_type
+  machine_type = var.work_pc.machine_type
 
 
   user_data = base64encode(templatefile("template/boot_zip.sh", {
