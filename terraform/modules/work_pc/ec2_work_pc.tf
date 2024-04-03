@@ -10,7 +10,6 @@ resource "google_compute_instance_template" "master" {
   machine_type = var.work_pc.machine_type
 
   metadata = {
-    ssh-keys = "ubuntu:${file("./gcp_instance_ssh_key.pub")}"
     startup-script = <<-EOF
     ${templatefile("template/boot_zip.sh", {
     boot_zip = base64gzip(templatefile(var.work_pc.user_data_template, {
