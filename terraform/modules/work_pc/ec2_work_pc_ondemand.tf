@@ -32,21 +32,17 @@ resource "google_compute_instance" "master" {
     ssh-keys = "ubuntu:${file("./gcp_instance_ssh_key.pub")}"
     startup-script = <<-EOF
     ${templatefile("template/boot_zip.sh", {
-    boot_zip = base64gzip(templatefile(var.k8s_master.user_data_template, {
-      worker_join         = local.worker_join
-      k8s_config          = local.k8s_config
-      external_ip         = local.external_ip
-      k8_version          = var.k8s_master.k8_version
-      runtime             = var.k8s_master.runtime
-      utils_enable        = var.k8s_master.utils_enable
-      pod_network_cidr    = var.k8s_master.pod_network_cidr
-      runtime_script      = file(var.k8s_master.runtime_script)
-      task_script_url     = var.k8s_master.task_script_url
-      calico_url          = var.k8s_master.calico_url
-      ssh_private_key     = var.k8s_master.ssh.private_key
-      ssh_pub_key         = var.k8s_master.ssh.pub_key
+    boot_zip = base64gzip(templatefile(var.work_pc.user_data_template, {
+      clusters_config     = join(" ", [for key, value in var.work_pc.clusters_config : "${key}=${value}"])
+      kubectl_version     = var.work_pc.util.kubectl_version
+      ssh_private_key     = var.work_pc.ssh.private_key
+      ssh_pub_key         = var.work_pc.ssh.pub_key
+      exam_time_minutes   = var.work_pc.exam_time_minutes
+      test_url            = var.work_pc.test_url
+      task_script_url     = var.work_pc.task_script_url
       ssh_password        = random_string.ssh.result
       ssh_password_enable = var.ssh_password_enable
+      hosts               = local.hosts
     }))
     })}
     EOF
