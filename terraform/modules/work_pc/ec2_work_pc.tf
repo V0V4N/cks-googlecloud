@@ -5,7 +5,7 @@ resource "google_service_account" "default" {
 
 resource "google_compute_instance_template" "master" {
 
-  name         = "${local.prefix}-${var.app_name}"
+  name         = "${var.app_name}"
   machine_type = var.work_pc.machine_type
 
   metadata = {
