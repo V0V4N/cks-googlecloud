@@ -12,7 +12,6 @@ locals {
     "k8_node_type" = "worker-pc"
     "Name"         = "${local.prefix}-${var.app_name}-worker-pc"
   }
-  tags_all_k8_master = var.work_pc.node_type == "spot" ? merge(local.tags_all, local.tags_k8_master) : {}
 
   hosts        = join(" ", var.host_list)
 }
