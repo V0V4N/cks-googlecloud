@@ -1,5 +1,4 @@
 variable "region" {}
-variable "aws" {}
 variable "prefix" {}
 variable "tags_common" {
   type = map(string)
@@ -13,8 +12,6 @@ variable "ENV_ID" {
   default = "defaultId"
 }
 variable "app_name" {}
-variable "vpc_id" {}
-variable "subnets_az" {}
 # k8_version    https://packages.cloud.google.com/apt/dists/kubernetes-xenial/main/binary-amd64/Packages
 variable "cluster_name" { type = string }
 variable "time_sleep" {
@@ -23,15 +20,15 @@ variable "time_sleep" {
 variable "ssh_password_enable" {
   default = "true"
 }
-variable "node_type" { type = string }
+
+variable "project" {
+  default = "hazel-field-418402"
+}
+
 variable "k8s_master" {
   type = object({
-    instance_type      = string
-    ami_id             = string
+    machine_type      = string
     ubuntu_version     = string
-    key_name           = string
-    cidrs              = list(string)
-    subnet_number      = string
     user_data_template = string
     k8_version         = string
     runtime            = string
@@ -40,26 +37,17 @@ variable "k8s_master" {
     pod_network_cidr   = string
     calico_url         = string
     task_script_url    = string # url for run additional script
-    eip                = string # true or ...
     ssh = object({
       private_key = string
       pub_key     = string
-    })
-    root_volume = object({
-      type = string
-      size = string
     })
   })
 }
 
 variable "k8s_worker" {
   type = map(object({
-    instance_type      = string
-    ami_id             = string
+    machine_type      = string
     ubuntu_version     = string
-    key_name           = string
-    cidrs              = list(string)
-    subnet_number      = string
     user_data_template = string
     k8_version         = string
     runtime            = string
@@ -69,10 +57,6 @@ variable "k8s_worker" {
     ssh = object({
       private_key = string
       pub_key     = string
-    })
-    root_volume = object({
-      type = string
-      size = string
     })
   }))
 }
