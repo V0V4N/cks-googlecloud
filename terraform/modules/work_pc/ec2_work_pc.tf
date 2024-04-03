@@ -8,7 +8,6 @@ resource "google_compute_instance_template" "master" {
 
   name         = "${local.prefix}-${var.app_name}"
   machine_type = var.work_pc.machine_type
-  zone         = var.region
 
   metadata = {
     ssh-keys = "ubuntu:${file("./gcp_instance_ssh_key.pub")}"

@@ -1,7 +1,3 @@
-output "worker_pc_ssh" {
-  value = local.worker_pc_ssh
-}
-
 output "ssh_user" {
   value = var.debug_output == "true" ? "ubuntu" : null
 }
