@@ -1,7 +1,6 @@
 locals {
   region                 = "asia-east2-a"
   backend_region         = "ASIA"
-  project                = "hazel-field-418402"
   backend_bucket         = "v0v4n-cks-state-backet"
 }
 

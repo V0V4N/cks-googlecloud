@@ -1,5 +1,6 @@
 locals {
   region = "asia-east2-a"
+  project                = "hazel-field-418402"
   prefix = "cks-lab"
   tags = {
     "env_name"        = "cks-lab"
