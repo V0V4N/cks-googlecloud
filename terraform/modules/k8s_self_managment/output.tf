@@ -42,10 +42,6 @@ output "worker_nodes" {
   value = local.worker_nodes
 }
 
-output "ami_id_master" {
-  value = local.master_ami
-}
-
 output "master_machine_type" {
   value = local.master_machine_type
 }
