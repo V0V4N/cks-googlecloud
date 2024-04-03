@@ -41,10 +41,15 @@ variable "work_pc" {
     clusters_config    = map(string)
     machine_type      = string
     ubuntu_version     = string
+    user_data_template = string
     task_script_url    = string # url for run additional script
     node_type          = string # spot ar ondemand
     test_url          = string
     exam_time_minutes = string
+    ssh = object({
+      private_key = string
+      pub_key     = string
+    })
     util = object({
       kubectl_version = string
     })

@@ -3,7 +3,6 @@ resource "google_compute_instance" "master" {
   
   name         = "${local.prefix}-${var.app_name}"
   machine_type = var.work_pc.machine_type
-  zone         = var.region
 
   tags = local.tags_all
 
