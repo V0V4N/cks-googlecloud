@@ -1,4 +1,4 @@
-resource "google_compute_instance" "master" {
+resource "google_compute_instance_template" "master" {
   for_each      = toset(var.work_pc.node_type == "spot" ? ["enable"] : [])
 
   name         = "${local.prefix}-${var.app_name}"

@@ -12,8 +12,6 @@ variable "tags_common" {
   type = map(string)
 }
 variable "app_name" {}
-variable "vpc_id" {}
-variable "subnets_az" {}
 variable "time_sleep" {
   default = "30s"
 }
@@ -42,33 +40,14 @@ variable "work_pc" {
   type = object({
     clusters_config    = map(string)
     machine_type      = string
-    ami_id             = string
-    key_name           = string
-    cidrs              = list(string)
-    subnet_number      = string
     ubuntu_version     = string
-    user_data_template = string
     task_script_url    = string # url for run additional script
     node_type          = string # spot ar ondemand
-    ssh = object({
-      private_key = string
-      pub_key     = string
-    })
     test_url          = string
     exam_time_minutes = string
     util = object({
       kubectl_version = string
     })
-    root_volume = object({
-      type = string
-      size = string
-    })
-    non_root_volumes = map(object({
-      delete_on_termination = optional(bool),
-      size                  = number,
-      type                  = string,
-      encrypted             = optional(bool)
-    }))
   })
 }
 
