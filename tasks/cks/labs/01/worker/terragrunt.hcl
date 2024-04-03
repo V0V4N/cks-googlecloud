@@ -26,6 +26,7 @@ inputs = {
     clusters_config    = {}
     machine_type      = local.vars.locals.machine_type_worker
     ubuntu_version     = local.vars.locals.ubuntu_version
+    user_data_template = "template/worker.sh"
     util = {
       kubectl_version = local.vars.locals.k8_version
     }
