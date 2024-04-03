@@ -36,6 +36,10 @@ variable "solutions_video" {
   default = ""
 }
 
+variable "project" {
+  default = "hazel-field-418402"
+}
+
 variable "work_pc" {
   type = object({
     clusters_config    = map(string)
