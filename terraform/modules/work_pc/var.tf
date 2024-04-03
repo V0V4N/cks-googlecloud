@@ -1,5 +1,4 @@
 variable "region" {}
-variable "aws" {}
 variable "prefix" {}
 variable "USER_ID" {
   type    = string

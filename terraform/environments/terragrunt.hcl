@@ -1,6 +1,6 @@
 locals {
   region                 = "asia-east2-a"
-  backend_region         = "ASIA-EAST2"
+  backend_region         = "ASIA"
   backend_bucket         = "v0v4n-cks-state-backet"
 }
 
@@ -29,7 +29,7 @@ remote_state {
   config  = {
     bucket         = local.backend_bucket
     location       = local.backend_region
-    prefix         = "terragrunt${path_relative_to_include()}"
+    prefix   = "${path_relative_to_include()}/terraform.tfstate"
   }
 }
 inputs = {

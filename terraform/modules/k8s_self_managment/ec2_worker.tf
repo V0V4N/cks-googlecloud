@@ -34,7 +34,7 @@ resource "google_compute_instance_template" "worker" {
 
   network_interface {
     network = "default"
-    subnetwork = local.subnets[var.k8s_master.subnet_number]
+    subnetwork = local.subnets[var.k8s_worker.subnet_number]
 
     access_config {
       // Ephemeral public IP
