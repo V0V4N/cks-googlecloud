@@ -6,10 +6,6 @@ output "ssh_password" {
   value = var.debug_output == "true" ? random_string.ssh.result : null
 }
 
-output "node_type" {
-  value = var.debug_output == "true" ? var.work_pc.node_type : null
-}
-
 output "boot_log" {
   value = "   tail -f /var/log/cloud-init-output.log    "
 }
