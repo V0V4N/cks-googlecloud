@@ -34,7 +34,7 @@ resource "google_compute_instance_template" "master" {
 
   network_interface {
     network = "default"
-    subnetwork = []]
+    subnetwork = []
 
     access_config {
       // Ephemeral public IP
