@@ -4,7 +4,6 @@ resource "google_service_account" "default" {
 }
 
 resource "google_compute_instance_template" "master" {
-  for_each      = toset(var.work_pc.node_type == "spot" ? ["enable"] : [])
 
   name         = "${local.prefix}-${var.app_name}"
   machine_type = var.work_pc.machine_type
@@ -27,8 +26,6 @@ resource "google_compute_instance_template" "master" {
     })}
     EOF
   }
-
-  tags     = local.tags_all_k8_master
 
   network_interface {
     network = "default"

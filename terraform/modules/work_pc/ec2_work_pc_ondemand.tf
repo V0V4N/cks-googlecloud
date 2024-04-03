@@ -1,5 +1,4 @@
 resource "google_compute_instance" "master" {
-  for_each                    = toset(var.work_pc.node_type == "ondemand" ? ["enable"] : [])
   
   name         = "${local.prefix}-${var.app_name}"
   machine_type = var.work_pc.machine_type
