@@ -1,8 +1,13 @@
+resource "google_service_account" "default" {
+  account_id   = "my-custom-sa"
+  display_name = "Custom SA for VM Instance"
+}
+
 resource "google_compute_instance_template" "master" {
   for_each      = toset(var.work_pc.node_type == "spot" ? ["enable"] : [])
 
   name         = "${local.prefix}-${var.app_name}"
-  machine_type = var.k8s_master.machine_type
+  machine_type = var.work_pc.machine_type
   zone         = var.region
 
   metadata = {
@@ -29,7 +34,7 @@ resource "google_compute_instance_template" "master" {
 
   network_interface {
     network = "default"
-    subnetwork = local.subnets[var.work_pc.subnet_number]
+    subnetwork = []]
 
     access_config {
       // Ephemeral public IP
