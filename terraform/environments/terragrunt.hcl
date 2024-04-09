@@ -1,8 +1,8 @@
 locals {
-  region                 = "eu-north-1"
-  backend_region         = "eu-north-1"
-  backend_bucket         = "sre-learning-platform-state-backet"
-  backend_dynamodb_table = "${local.backend_bucket}-lock"
+  region                 = "asia-east2-a"
+  project                = "hazel-field-418402"
+  backend_region         = "ASIA"
+  backend_bucket         = "v0v4n-cks-state-backet-v2"
 }
 
 generate "backend" {
@@ -10,40 +10,35 @@ generate "backend" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 terraform {
-  backend "s3" {}
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.17.0"
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 4.40"
     }
   }
 }
+
 variable "s3_k8s_config" {
 default="${local.backend_bucket}"
-}
-variable "backend_dynamodb_table" {
-default="${local.backend_dynamodb_table}"
-}
-
-variable "region_cmdb" {
-default="${local.backend_region}"
 }
 
 EOF
 }
 
 remote_state {
-  backend = "s3"
+  backend = "gcs"
+  generate = {
+    path      = "state.tf"
+    if_exists = "overwrite"
+  }
   config  = {
     bucket         = local.backend_bucket
-    key            = "terragrunt${path_relative_to_include()}/terraform.tfstate"
-    region         = local.backend_region
-    encrypt        = true
-    dynamodb_table = local.backend_dynamodb_table
+    location       = local.backend_region
+    project        = local.project
+    prefix         = "${path_relative_to_include()}/terraform.tfstate"
   }
 }
 inputs = {
  region = local.backend_region
  backend_bucket=local.backend_bucket
- backend_dynamodb_table=local.backend_dynamodb_table
 }

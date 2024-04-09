@@ -1,22 +1,50 @@
-resource "aws_instance" "master" {
-  for_each                    = toset(var.work_pc.node_type == "ondemand" ? ["enable"] : [])
-  iam_instance_profile        = aws_iam_instance_profile.server.id
-  associate_public_ip_address = "true"
-  ami                         = var.work_pc.ami_id != "" ? var.work_pc.ami_id : data.aws_ami.master.image_id
-  instance_type               = var.work_pc.instance_type
-  subnet_id                   = local.subnets[var.work_pc.subnet_number]
-  key_name                    = var.work_pc.key_name != "" ? var.work_pc.key_name : null
-  security_groups             = [aws_security_group.servers.id]
+resource "google_service_account" "default" {
+  account_id   = "${local.prefix}-${var.app_name}-sa"
+  display_name = "Custom SA for VM Instance"
+}
+
+resource "google_storage_bucket_iam_member" "default" {
+  bucket = var.s3_k8s_config
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.default.email}"
+}
+
+resource "google_compute_instance" "master" {
+  name         = "${local.prefix}-${var.app_name}-worker-pc"
+  machine_type = var.work_pc.machine_type
+  zone         = var.region
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.default.email
+    scopes = ["cloud-platform"]
+  }
+
   lifecycle {
     ignore_changes = [
-      instance_type,
-      user_data,
-      root_block_device,
-      key_name,
-      security_groups
+      machine_type,
+      boot_disk,
+      metadata
     ]
   }
-  user_data = base64encode(templatefile("template/boot_zip.sh", {
+
+  metadata = {
+    startup-script = <<-EOF
+    ${templatefile("template/boot_zip.sh", {
     boot_zip = base64gzip(templatefile(var.work_pc.user_data_template, {
       clusters_config     = join(" ", [for key, value in var.work_pc.clusters_config : "${key}=${value}"])
       kubectl_version     = var.work_pc.util.kubectl_version
@@ -29,38 +57,7 @@ resource "aws_instance" "master" {
       ssh_password_enable = var.ssh_password_enable
       hosts               = local.hosts
     }))
-
-  }))
-
-  tags = local.tags_all
-  root_block_device {
-    volume_size           = var.work_pc.root_volume.size
-    volume_type           = var.work_pc.root_volume.type
-    delete_on_termination = true
-    tags                  = local.tags_all
-    encrypted             = true
+    })}
+    EOF
   }
-}
-
-resource "aws_ebs_volume" "master" {
-  for_each = var.work_pc.node_type == "ondemand" ? var.work_pc.non_root_volumes : {}
-
-  size              = each.value.size
-  type              = each.value.type
-  encrypted         = lookup(each.value, "encrypted", false)
-  availability_zone = data.aws_subnet.active.availability_zone
-
-  tags = local.tags_all_k8_master
-}
-
-data "aws_subnet" "active" {
-  id = local.subnets[var.work_pc.subnet_number]
-}
-
-resource "aws_volume_attachment" "master" {
-  for_each = var.work_pc.node_type == "ondemand" ? var.work_pc.non_root_volumes : {}
-
-  device_name = each.key
-  volume_id   = aws_ebs_volume.master[each.key].id
-  instance_id = aws_instance.master["enable"].id
 }

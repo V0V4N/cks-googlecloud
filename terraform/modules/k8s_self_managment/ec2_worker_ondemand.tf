@@ -1,23 +1,51 @@
-resource "aws_instance" "worker" {
-  for_each                    = local.k8s_worker_ondemand
-  iam_instance_profile        = aws_iam_instance_profile.server.id
-  associate_public_ip_address = "true"
-  ami                         = each.value.ami_id != "" ? each.value.ami_id : data.aws_ami.worker["${each.key}"].image_id
-  instance_type               = each.value.instance_type
-  subnet_id                   = local.subnets[each.value.subnet_number]
-  key_name                    = each.value.key_name != "" ? each.value.key_name : null
-  security_groups             = [aws_security_group.servers.id]
+resource "google_service_account" "worker" {
+  account_id   = "${local.prefix}-${var.app_name}-worker-sa"
+  display_name = "Custom SA for VM Instance"
+}
+
+resource "google_storage_bucket_iam_member" "worker" {
+  bucket = var.s3_k8s_config
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.worker.email}"
+}
+
+resource "google_compute_instance" "worker" {
+  for_each     = local.k8s_worker
+  name         = "${local.prefix}-${var.app_name}-worker"
+  machine_type = each.value.machine_type
+  zone         = var.region
+  
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.worker.email
+    scopes = ["cloud-platform"]
+  }
+
   lifecycle {
     ignore_changes = [
-      instance_type,
-      user_data,
-      root_block_device,
-      key_name,
-      security_groups
+      machine_type,
+      boot_disk,
+      metadata
     ]
   }
 
-  user_data = base64encode(templatefile("template/boot_zip.sh", {
+  metadata = {
+    startup-script = <<-EOF
+    ${templatefile("template/boot_zip.sh", {
     boot_zip = base64gzip(templatefile(each.value.user_data_template, {
       worker_join         = local.worker_join
       k8s_config          = local.k8s_config
@@ -32,17 +60,7 @@ resource "aws_instance" "worker" {
       ssh_password        = random_string.ssh.result
       ssh_password_enable = var.ssh_password_enable
     }))
-
-  }))
-
-
-  tags = local.tags_all
-  root_block_device {
-    volume_size           = each.value.root_volume.size
-    volume_type           = each.value.root_volume.type
-    delete_on_termination = true
-    tags                  = local.tags_all
-    encrypted             = true
+    })}
+    EOF
   }
-
 }

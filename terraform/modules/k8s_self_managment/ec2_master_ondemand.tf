@@ -1,26 +1,53 @@
-resource "aws_instance" "master" {
-  for_each                    = toset(var.node_type == "ondemand" ? ["enable"] : [])
-  iam_instance_profile        = aws_iam_instance_profile.server.id
-  associate_public_ip_address = "true"
-  ami                         = local.master_ami
-  instance_type               = var.k8s_master.instance_type
-  subnet_id                   = local.subnets[var.k8s_master.subnet_number]
-  key_name                    = var.k8s_master.key_name != "" ? var.k8s_master.key_name : null
-  security_groups             = [aws_security_group.servers.id]
+resource "google_service_account" "master" {
+  account_id   = "${local.prefix}-${var.app_name}-master-sa"
+  display_name = "Custom SA for VM Instance"
+}
+
+resource "google_storage_bucket_iam_member" "master" {
+  bucket = var.s3_k8s_config
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.master.email}"
+}
+
+resource "google_compute_instance" "master" {
+  name         = "${local.prefix}-${var.app_name}-master"
+  machine_type = var.k8s_master.machine_type
+  zone         = var.region
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.master.email
+    scopes = ["cloud-platform"]
+  }
+
   lifecycle {
     ignore_changes = [
-      instance_type,
-      user_data,
-      root_block_device,
-      key_name,
-      security_groups
+      machine_type,
+      boot_disk,
+      metadata
     ]
   }
-  user_data = base64encode(templatefile("template/boot_zip.sh", {
+
+  metadata = {
+    startup-script = <<-EOF
+    ${templatefile("template/boot_zip.sh", {
     boot_zip = base64gzip(templatefile(var.k8s_master.user_data_template, {
       worker_join         = local.worker_join
       k8s_config          = local.k8s_config
-      external_ip         = local.external_ip
       k8_version          = var.k8s_master.k8_version
       runtime             = var.k8s_master.runtime
       utils_enable        = var.k8s_master.utils_enable
@@ -33,18 +60,7 @@ resource "aws_instance" "master" {
       ssh_password        = random_string.ssh.result
       ssh_password_enable = var.ssh_password_enable
     }))
-
-  }))
-
-
-  tags = local.tags_all
-  root_block_device {
-    volume_size           = var.k8s_master.root_volume.size
-    volume_type           = var.k8s_master.root_volume.type
-    delete_on_termination = true
-    tags                  = local.tags_all
-    encrypted             = true
+    })}
+    EOF
   }
-
-
 }

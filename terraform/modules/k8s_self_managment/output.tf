@@ -8,15 +8,12 @@ output "cluster" {
 output "master_local_ip" {
   value = local.master_local_ip
 }
-output "node_type" {
-  value = var.node_type
-}
 output "worker_join" {
-  value = "s3://${local.worker_join}"
+  value = "gs://${local.worker_join}"
 }
 
 output "k8s_config" {
-  value = "s3://${local.k8s_config}"
+  value = "gs://${local.k8s_config}"
 }
 output "k8_master_version" {
   value = var.k8s_master.k8_version
@@ -24,10 +21,6 @@ output "k8_master_version" {
 
 output "master_ssh" {
   value = "ssh ubuntu@${local.master_ip_public}  password= ${random_string.ssh.result}  "
-}
-
-output "eip" {
-  value = var.k8s_master.eip
 }
 
 output "check_node_status" {
@@ -42,19 +35,12 @@ output "worker_nodes" {
   value = local.worker_nodes
 }
 
-output "ami_id_master" {
-  value = local.master_ami
-}
-
-output "master_instance_type" {
-  value = local.master_instance_type
+output "master_machine_type" {
+  value = local.master_machine_type
 }
 
 output "worker_reload_bashrc" {
   value = "  source ~/.bashrc   "
-}
-output "ec2_key" {
-  value = var.k8s_master.key_name
 }
 
 output "ssh_password" {

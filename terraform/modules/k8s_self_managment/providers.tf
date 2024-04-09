@@ -1,8 +1,4 @@
-provider "aws" {
-  region = var.region
-}
-
-provider "aws" {
-  alias  = "cmdb"
-  region = var.region_cmdb
+provider "google" {
+  project = var.project
+  region  = var.region
 }

@@ -17,43 +17,29 @@ terraform {
 
 }
 
-dependency "vpc" {
-  config_path = "../vpc"
-}
-
 dependency "ssh-keys" {
   config_path = "../ssh-keys"
 }
 
 inputs = {
   region       = local.vars.locals.region
-  aws          = local.vars.locals.aws
   prefix       = "cluster3"
   tags_common  = local.vars.locals.tags
   app_name     = "k8s"
-  subnets_az   = dependency.vpc.outputs.subnets_az_cmdb
-  vpc_id       = dependency.vpc.outputs.vpc_id
   cluster_name = "k8s3"
-  node_type    = local.vars.locals.node_type
   ssh_password_enable =local.vars.locals.ssh_password_enable
 
   k8s_master = {
     k8_version         = local.vars.locals.k8_version
     runtime            = local.vars.locals.runtime # docker  , cri-o  , containerd ( need test it )
     runtime_script     = "template/runtime.sh"
-    instance_type      = local.vars.locals.instance_type
-    key_name           = local.vars.locals.key_name
-    ami_id             = local.vars.locals.ami_id
+    machine_type      = local.vars.locals.machine_type
     ubuntu_version     = local.vars.locals.ubuntu_version
-    subnet_number      = "0"
     user_data_template = "template/master.sh"
     pod_network_cidr   = "10.0.0.0/16"
-    cidrs              = local.vars.locals.access_cidrs
-    eip                = "false"
     utils_enable       = "false"
     task_script_url    = "https://raw.githubusercontent.com/ViktorUJ/cks/master/tasks/cks/mock/01/k8s-3/scripts/master.sh"
     calico_url         = "https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml"
-    root_volume        = local.vars.locals.root_volume
     ssh = {
       private_key = dependency.ssh-keys.outputs.private_key
       pub_key     = dependency.ssh-keys.outputs.pub_key
@@ -62,18 +48,13 @@ inputs = {
   k8s_worker = {
     "node_1" = {
       k8_version         = local.vars.locals.k8_version
-      instance_type      = local.vars.locals.instance_type
-      key_name           = local.vars.locals.key_name
-      ami_id             = local.vars.locals.ami_id
+      machine_type      = local.vars.locals.machine_type
       ubuntu_version     = local.vars.locals.ubuntu_version
-      subnet_number      = "0"
       user_data_template = "template/worker.sh"
       runtime            = local.vars.locals.runtime
       runtime_script     = "template/runtime.sh"
       task_script_url    = "https://raw.githubusercontent.com/ViktorUJ/cks/master/tasks/cks/mock/01/k8s-3/scripts/worker.sh"
       node_labels        = "work_type=worker"
-      cidrs              = local.vars.locals.access_cidrs
-      root_volume        = local.vars.locals.root_volume
       ssh = {
         private_key = dependency.ssh-keys.outputs.private_key
         pub_key     = dependency.ssh-keys.outputs.pub_key
